@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
 <head>
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
@@ -73,6 +73,7 @@ td{
     align-items:center;
     justify-content:center;
     margin:0;
+    transition:opacity .2s ease, transform .2s ease;
 }
 .menuPanel{
     position:fixed;
@@ -82,35 +83,190 @@ td{
     max-width:100vw;
     height:100%;
     background:#1e293b;
-    padding:20px;
+    padding:18px 18px 22px;
     transition:left .3s ease;
     z-index:2400;
     overflow-y:auto;
     box-shadow:10px 0 35px rgba(0,0,0,.25);
     box-sizing:border-box;
+    border-right:1px solid rgba(255,255,255,.08);
+}
+body.menuAbierto .menuBtn{
+    opacity:0;
+    pointer-events:none;
+    transform:translateX(-8px);
+}
+.menuHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    margin-bottom:10px;
+    padding-right:2px;
+}
+.menuHeader h3{
+    margin:0;
+    line-height:1.2;
+    font-size:32px;
+    font-weight:700;
+}
+.menuIntro{
+    margin:0 0 14px;
+    text-align:left;
+    color:#e2e8f0;
+    font-size:15px;
+    line-height:1.35;
 }
 .menuPanel.abierto{
     left:0;
 }
-.resultadoBox{
-    margin-top:20px;
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:12px;
+.menuSeccion{
+    background:#273449;
+    padding:14px;
+    border-radius:10px;
+    margin-bottom:14px;
 }
-.resultadoCard{
+.menuSeccionTitulo{
+    display:block;
+    text-align:left;
+    font-size:13px;
+    color:#94a3b8;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    margin-bottom:10px;
+}
+.menuNavBtn{
+    width:100%;
+    margin:0 0 10px;
     background:#334155;
+    border:1px solid rgba(255,255,255,.08);
+    text-align:left;
+    font-weight:700;
+}
+.menuNavBtn:last-child{
+    margin-bottom:0;
+}
+.menuNavBtn.activo{
+    background:#2563eb;
+}
+.subtituloVista{
+    color:#cbd5e1;
+    margin:0 0 18px;
+}
+.selectorEquipoBox{
+    background:#243247;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:20px;
+}
+.selectorEquipoTitulo{
+    margin:0 0 14px;
+    font-size:20px;
+}
+.selectorEquipoBtns{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+.selectorEquipoBtns button{
+    background:#334155;
+    min-width:180px;
+    font-weight:700;
+}
+.selectorEquipoBtns button.activo{
+    background:#f59e0b;
+}
+.plantillaBox{
+    background:#243247;
+    border:1px solid rgba(255,255,255,.08);
     border-radius:12px;
     padding:14px;
+    margin-bottom:18px;
+    text-align:left;
 }
-.resultadoLabel{
-    font-size:13px;
+.plantillaBox label{
+    display:block;
+    font-weight:700;
+    margin-bottom:8px;
+}
+.plantillaEstado{
+    margin-top:8px;
     color:#cbd5e1;
-    margin-bottom:6px;
+    font-size:13px;
 }
-.resultadoValor{
-    font-size:22px;
-    font-weight:bold;
+.formSection{
+    margin-top:20px;
+}
+.combustionSection{
+    margin-top:20px;
+    background:white;
+    color:black;
+    border-radius:10px;
+    overflow:hidden;
+}
+.combustionTable{
+    width:100%;
+    border-collapse:collapse;
+}
+.combustionTable th,
+.combustionTable td{
+    border:1px solid #cbd5e1;
+    padding:8px 6px;
+}
+.combustionTable th{
+    background:#e5e7eb;
+}
+.combustionTable input{
+    width:100%;
+    margin:0;
+}
+.combustionRowCell{
+    text-align:left;
+    min-width:160px;
+}
+.combustionRowLabel{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:700;
+}
+.combustionHint{
+    margin:12px 14px 0;
+    color:#334155;
+    font-size:13px;
+    text-align:left;
+}
+.resultadosTablaWrap{
+    margin-top:18px;
+    background:white;
+    color:black;
+    border-radius:12px;
+    overflow:hidden;
+}
+.resultadosTabla{
+    width:100%;
+    border-collapse:collapse;
+}
+.resultadosTabla th,
+.resultadosTabla td{
+    border:1px solid #cbd5e1;
+    padding:8px 6px;
+}
+.resultadosTabla th{
+    background:#e5e7eb;
+}
+.combustionResultado{
+    font-weight:700;
+    color:#0f172a;
+    white-space:nowrap;
+}
+.combustionResultadoSec{
+    color:#475569;
+}
+.oculto{
+    display:none !important;
 }
 .resultadoAyuda{
     margin-top:14px;
@@ -163,7 +319,7 @@ td{
     .menuPanel{
         width:100vw;
         left:-100vw;
-        padding-top:22px;
+        padding:20px 16px 22px;
     }
     .menuPanel.abierto{
         left:0;
@@ -182,12 +338,18 @@ td{
 <button id="menuBtn" class="menuBtn" aria-label="Abrir menú">☰</button>
 
 <div id="menuPanel" class="menuPanel">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-        <h3 style="margin:0;line-height:1.2;">Configuración</h3>
+    <div class="menuHeader">
+        <h3>Configuración</h3>
         <button id="cerrarMenu" style="background:none;color:white;font-size:20px;width:auto;min-width:36px;margin:0;padding:6px 8px;" aria-label="Cerrar menú">✖</button>
     </div>
 
-    <p style="margin-top:8px;">Acá vamos a cargar los medidores</p>
+    <div class="menuSeccion">
+        <span class="menuSeccionTitulo">Ensayos</span>
+        <button id="btnVistaPiloto" class="menuNavBtn activo">Piloto analizador</button>
+        <button id="btnVistaCombustion" class="menuNavBtn">Combustión</button>
+        <button id="btnMedidorGas" class="menuNavBtn">Medidor de gas</button>
+        <button id="btnCaudalimetro" class="menuNavBtn">Caudalímetro digital</button>
+    </div>
 
     <div style="background:#334155;padding:14px;border-radius:10px;margin-bottom:14px;margin-top:14px;max-width:100%;">
         <h4 style="margin-top:0;">Agregar nuevo medidor</h4>
@@ -195,7 +357,7 @@ td{
         <input id="archivoFactor" type="file" accept=".csv,.txt,.xlsx" style="width:90%;max-width:220px;display:block;margin:8px auto;">
         <button id="btnAgregarMedidor" style="width:90%;max-width:220px;">Agregar medidor</button>
         <div id="msgMedidor" style="color:#f59e0b;margin-top:8px;"></div>
-        <div class="muted" style="margin-top:8px;">La tabla puede venir como GASES | PARA | ERROR. Se toman las dos columnas numéricas.</div>
+        <div class="muted" style="margin-top:8px;">La tabla puede venir como GASES | PARA | ERROR. Si trae la columna de gas, la corrección usa solo las filas de CO.</div>
     </div>
 
     <div style="background:#222b3a;padding:10px;border-radius:8px;margin-bottom:10px;">
@@ -215,77 +377,118 @@ td{
 </div>
 
 <div class="container">
-    <h2>Medidores de monóxido</h2>
+    <h2 id="tituloVista">Piloto analizador</h2>
+    <p id="subtituloVista" class="subtituloVista">Corrección para análisis piloto.</p>
 
-    <table style="width:100%;margin-top:20px;background:white;color:black;border-radius:10px;overflow:hidden">
-        <tr>
-            <td>Fecha</td>
-            <td><input id="fecha" type="date"></td>
-            <td>Modelo</td>
-            <td><input id="modelo"></td>
-            <td>Ensayo</td>
-            <td><input id="ensayo"></td>
-        </tr>
-        <tr>
-            <td colspan="6" style="background:#e5e7eb;text-align:center"><b>INSTRUMENTO</b></td>
-        </tr>
-        <tr>
-            <td colspan="6">
-                <select id="instrumento" style="width:100%;padding:8px;">
-                    <option value="">Seleccionar N° de medidor</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="6" style="background:#e5e7eb;text-align:center"><b>Ensayo con ambiente enrarecido</b></td>
-        </tr>
-        <tr>
-            <td colspan="3">Temp Ambiente</td>
-            <td colspan="2"><input id="temp"></td>
-            <td>°C</td>
-        </tr>
-        <tr>
-            <td colspan="3">O2</td>
-            <td colspan="2"><input id="o2"></td>
-            <td>%</td>
-        </tr>
-        <tr>
-            <td colspan="3">CO2</td>
-            <td colspan="2"><input id="co2"></td>
-            <td>%</td>
-        </tr>
-        <tr>
-            <td colspan="3">CO</td>
-            <td colspan="2"><input id="co"></td>
-            <td>ppm</td>
-        </tr>
-        <tr>
-            <td colspan="3">Tiempo</td>
-            <td colspan="2">
-                <div style="display:flex;gap:8px;justify-content:center;">
-                    <input id="min" placeholder="min" style="width:45%">
-                    <input id="seg" placeholder="seg" style="width:45%">
-                </div>
-            </td>
-            <td>min / seg</td>
-        </tr>
-    </table>
-
-    <div class="resultadoBox">
-        <div class="resultadoCard">
-            <div class="resultadoLabel">Error interpolado</div>
-            <div class="resultadoValor" id="errorResultado">-</div>
-        </div>
-        <div class="resultadoCard">
-            <div class="resultadoLabel">CO corregido</div>
-            <div class="resultadoValor" id="coCorregidoResultado">-</div>
+    <div id="selectorEquipoCombustion" class="selectorEquipoBox oculto">
+        <h3 class="selectorEquipoTitulo">Seleccioná el equipo de combustión</h3>
+        <div class="selectorEquipoBtns">
+            <button id="btnTermotanque">Termotanque</button>
+            <button id="btnCalefones">Calefones</button>
         </div>
     </div>
 
-    <div id="estadoResultado" class="resultadoAyuda"></div>
+    <div id="plantillaBox" class="plantillaBox oculto">
+        <label for="archivoPlantilla">Plantilla Excel para combustión</label>
+        <input id="archivoPlantilla" type="file" accept=".xlsx">
+        <div id="plantillaEstado" class="plantillaEstado">Todavía no hay plantilla cargada. La UI queda lista para subirla cuando la tengas.</div>
+    </div>
 
-    <button id="btnCorreccion">Corrección</button>
-    <button id="btnDescargar" disabled>Descargar Excel</button>
+    <div id="panelFormulario">
+        <table class="formSection" style="width:100%;background:white;color:black;border-radius:10px;overflow:hidden">
+            <tr>
+                <td>Fecha</td>
+                <td><input id="fecha" type="date"></td>
+                <td>Modelo</td>
+                <td><input id="modelo"></td>
+                <td>Ensayo</td>
+                <td><input id="ensayo"></td>
+            </tr>
+            <tr>
+                <td colspan="6" style="background:#e5e7eb;text-align:center"><b>INSTRUMENTO</b></td>
+            </tr>
+            <tr>
+                <td colspan="6">
+                    <select id="instrumento" style="width:100%;padding:8px;">
+                        <option value="">Seleccionar N° de medidor</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+
+        <table id="pilotoSection" class="formSection" style="width:100%;background:white;color:black;border-radius:10px;overflow:hidden">
+            <tr>
+                <td colspan="6" style="background:#e5e7eb;text-align:center"><b>Ensayo con ambiente enrarecido</b></td>
+            </tr>
+            <tr>
+                <td colspan="3">Temp Ambiente</td>
+                <td colspan="2"><input id="temp"></td>
+                <td>°C</td>
+            </tr>
+            <tr>
+                <td colspan="3">O2</td>
+                <td colspan="2"><input id="o2"></td>
+                <td>%</td>
+            </tr>
+            <tr>
+                <td colspan="3">CO2</td>
+                <td colspan="2"><input id="co2"></td>
+                <td>%</td>
+            </tr>
+            <tr>
+                <td colspan="3">CO</td>
+                <td colspan="2"><input id="co"></td>
+                <td>ppm</td>
+            </tr>
+            <tr>
+                <td colspan="3">Tiempo</td>
+                <td colspan="2">
+                    <div style="display:flex;gap:8px;justify-content:center;">
+                        <input id="min" placeholder="min" style="width:45%">
+                        <input id="seg" placeholder="seg" style="width:45%">
+                    </div>
+                </td>
+                <td>min / seg</td>
+            </tr>
+        </table>
+
+        <div id="combustionSection" class="combustionSection oculto">
+            <div style="background:#e5e7eb;color:black;text-align:center;padding:10px 8px;font-weight:700;">Tabla de combustión</div>
+            <div id="combustionHint" class="combustionHint"></div>
+            <table class="combustionTable">
+                <thead>
+                    <tr>
+                        <th>Fila</th>
+                        <th>O2</th>
+                        <th>CO2</th>
+                        <th>CO</th>
+                        <th>Corrección</th>
+                        <th>CO corregido</th>
+                    </tr>
+                </thead>
+                <tbody id="combustionBody"></tbody>
+            </table>
+        </div>
+
+        <div id="estadoResultado" class="resultadoAyuda"></div>
+
+        <div id="resultadosCorregidosWrap" class="resultadosTablaWrap oculto">
+            <table class="resultadosTabla">
+                <thead>
+                    <tr>
+                        <th>Fila</th>
+                        <th>O2 corregido</th>
+                        <th>CO2 corregido</th>
+                        <th>CO corregido</th>
+                    </tr>
+                </thead>
+                <tbody id="resultadosCorregidosBody"></tbody>
+            </table>
+        </div>
+
+        <button id="btnCorreccion">Corrección</button>
+        <button id="btnDescargar" disabled>Descargar Excel</button>
+    </div>
 </div>
 
 <script>
@@ -305,6 +508,15 @@ const db = firebase.database();
 let medidores = [];
 let editandoKey = null;
 let ultimoResultado = null;
+let vistaActiva = "piloto";
+let combustionEquipo = "";
+let plantillaCombustionFile = null;
+const CLAVE_MEDIDORES = "final";
+
+const combustionRowsByEquipo = {
+    Termotanque: ["Presión baja", "Presión nominal", "Presión alta", "Obturado", "3 ms", "4 ms"],
+    Calefones: ["Presión nominal", "Presión alta", "Obturado", "3 ms", "4 ms"]
+};
 
 const refs = {
     menuBtn: document.getElementById("menuBtn"),
@@ -315,6 +527,10 @@ const refs = {
     btnAgregarMedidor: document.getElementById("btnAgregarMedidor"),
     msgMedidor: document.getElementById("msgMedidor"),
     listaGuardados: document.getElementById("listaGuardados"),
+    btnVistaPiloto: document.getElementById("btnVistaPiloto"),
+    btnVistaCombustion: document.getElementById("btnVistaCombustion"),
+    btnMedidorGas: document.getElementById("btnMedidorGas"),
+    btnCaudalimetro: document.getElementById("btnCaudalimetro"),
     modalEditar: document.getElementById("modalEditar"),
     editNro: document.getElementById("editNro"),
     editArchivo: document.getElementById("editArchivo"),
@@ -333,9 +549,22 @@ const refs = {
     seg: document.getElementById("seg"),
     btnCorreccion: document.getElementById("btnCorreccion"),
     btnDescargar: document.getElementById("btnDescargar"),
-    errorResultado: document.getElementById("errorResultado"),
-    coCorregidoResultado: document.getElementById("coCorregidoResultado"),
-    estadoResultado: document.getElementById("estadoResultado")
+    estadoResultado: document.getElementById("estadoResultado"),
+    panelFormulario: document.getElementById("panelFormulario"),
+    pilotoSection: document.getElementById("pilotoSection"),
+    combustionSection: document.getElementById("combustionSection"),
+    combustionHint: document.getElementById("combustionHint"),
+    combustionBody: document.getElementById("combustionBody"),
+    resultadosCorregidosWrap: document.getElementById("resultadosCorregidosWrap"),
+    resultadosCorregidosBody: document.getElementById("resultadosCorregidosBody"),
+    tituloVista: document.getElementById("tituloVista"),
+    subtituloVista: document.getElementById("subtituloVista"),
+    selectorEquipoCombustion: document.getElementById("selectorEquipoCombustion"),
+    btnTermotanque: document.getElementById("btnTermotanque"),
+    btnCalefones: document.getElementById("btnCalefones"),
+    plantillaBox: document.getElementById("plantillaBox"),
+    archivoPlantilla: document.getElementById("archivoPlantilla"),
+    plantillaEstado: document.getElementById("plantillaEstado")
 };
 
 refs.fecha.value = new Date().toISOString().slice(0, 10);
@@ -374,47 +603,232 @@ function obtenerTiempoCorteMinutos() {
 }
 function limpiarResultado() {
     ultimoResultado = null;
-    refs.errorResultado.textContent = "-";
-    refs.coCorregidoResultado.textContent = "-";
     refs.estadoResultado.textContent = "";
     refs.btnDescargar.disabled = true;
+    refs.resultadosCorregidosWrap.classList.add("oculto");
+    refs.resultadosCorregidosBody.innerHTML = "";
+    refs.combustionBody.querySelectorAll("[data-combustion-resultado]").forEach((celda) => {
+        celda.textContent = "-";
+    });
+}
+
+function slugFilaCombustion(nombre) {
+    return String(nombre)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+}
+
+function renderTablaCombustion() {
+    refs.combustionBody.innerHTML = "";
+    if (!combustionEquipo) return;
+
+    const filas = combustionRowsByEquipo[combustionEquipo] || [];
+    filas.forEach((fila) => {
+        const slug = slugFilaCombustion(fila);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="combustionRowCell">
+                <div class="combustionRowLabel">
+                    <span>${fila}</span>
+                </div>
+            </td>
+            <td><input data-combustion-row="${slug}" data-combustion-gas="O2" placeholder="%"></td>
+            <td><input data-combustion-row="${slug}" data-combustion-gas="CO2" placeholder="%"></td>
+            <td><input data-combustion-row="${slug}" data-combustion-gas="CO" placeholder="ppm"></td>
+            <td class="combustionResultadoSec" data-combustion-resultado="${slug}" data-combustion-tipo="correccion">-</td>
+            <td class="combustionResultado" data-combustion-resultado="${slug}" data-combustion-tipo="corregido">-</td>
+        `;
+        refs.combustionBody.appendChild(tr);
+    });
+
+    refs.combustionHint.textContent = "La corrección se calcula para todas las filas que tengan un valor de CO válido.";
+    refs.combustionBody.querySelectorAll("input[data-combustion-gas]").forEach((input) => {
+        input.addEventListener("input", limpiarResultado);
+        input.addEventListener("change", limpiarResultado);
+    });
+}
+
+function obtenerValorCombustion(fila, gas) {
+    const slug = slugFilaCombustion(fila);
+    const input = refs.combustionBody.querySelector(`[data-combustion-row="${slug}"][data-combustion-gas="${gas}"]`);
+    return input ? input.value.trim() : "";
+}
+
+function setResultadoFilaCombustion(fila, correccion, corregido) {
+    const slug = slugFilaCombustion(fila);
+    const celdaCorreccion = refs.combustionBody.querySelector(`[data-combustion-resultado="${slug}"][data-combustion-tipo="correccion"]`);
+    const celdaCorregido = refs.combustionBody.querySelector(`[data-combustion-resultado="${slug}"][data-combustion-tipo="corregido"]`);
+    if (celdaCorreccion) {
+        celdaCorreccion.textContent = Number.isFinite(correccion) ? formatoNumero(correccion, 2) : "-";
+    }
+    if (celdaCorregido) {
+        celdaCorregido.textContent = Number.isFinite(corregido) ? formatoNumero(corregido, 2) : "-";
+    }
+}
+
+function obtenerResultadosCombustion(medidor) {
+    const gases = ["O2", "CO2", "CO"];
+    const filas = combustionRowsByEquipo[combustionEquipo] || [];
+    return filas.map((fila) => {
+        const resultadoFila = { fila };
+        gases.forEach((gas) => {
+            const valor = normalizarNumero(obtenerValorCombustion(fila, gas));
+            const correccionInfo = obtenerCorreccionMedidor(medidor, valor, gas);
+            resultadoFila[gas] = {
+                medido: valor,
+                correccion: correccionInfo.correccion,
+                corregido: Number.isFinite(correccionInfo.correccion) ? valor + correccionInfo.correccion : NaN,
+                referencia: correccionInfo.fila
+            };
+        });
+        return resultadoFila;
+    });
+}
+
+function renderTablaResultadosCorregidos(filas) {
+    refs.resultadosCorregidosBody.innerHTML = "";
+    filas.forEach((item) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${item.fila}</td>
+            <td>${Number.isFinite(item.O2?.corregido) ? formatoNumero(item.O2.corregido, 2) : "-"}</td>
+            <td>${Number.isFinite(item.CO2?.corregido) ? formatoNumero(item.CO2.corregido, 2) : "-"}</td>
+            <td>${Number.isFinite(item.CO?.corregido) ? formatoNumero(item.CO.corregido, 2) : "-"}</td>
+        `;
+        refs.resultadosCorregidosBody.appendChild(tr);
+    });
+    refs.resultadosCorregidosWrap.classList.toggle("oculto", !filas.length);
+}
+
+function renderResultadoPilotoCorregido(resultado) {
+    refs.resultadosCorregidosBody.innerHTML = "";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td>Ensayo</td>
+        <td>${Number.isFinite(resultado.O2?.corregido) ? formatoNumero(resultado.O2.corregido, 2) : "-"}</td>
+        <td>${Number.isFinite(resultado.CO2?.corregido) ? formatoNumero(resultado.CO2.corregido, 2) : "-"}</td>
+        <td>${Number.isFinite(resultado.CO?.corregido) ? formatoNumero(resultado.CO.corregido, 2) : "-"}</td>
+    `;
+    refs.resultadosCorregidosBody.appendChild(tr);
+    refs.resultadosCorregidosWrap.classList.remove("oculto");
+}
+
+function actualizarUIVista() {
+    const esCombustion = vistaActiva === "combustion";
+    refs.tituloVista.textContent = esCombustion
+        ? (combustionEquipo ? "Combustión - " + combustionEquipo : "Combustión")
+        : "Piloto analizador";
+    refs.subtituloVista.textContent = esCombustion
+        ? (combustionEquipo
+            ? "Corrección para " + combustionEquipo.toLowerCase() + "."
+            : "Elegí termotanque o calefones para continuar.")
+        : "Corrección para análisis piloto.";
+
+    refs.btnVistaPiloto.classList.toggle("activo", !esCombustion);
+    refs.btnVistaCombustion.classList.toggle("activo", esCombustion);
+    refs.selectorEquipoCombustion.classList.toggle("oculto", !esCombustion);
+    refs.plantillaBox.classList.toggle("oculto", !esCombustion);
+    refs.panelFormulario.classList.toggle("oculto", esCombustion && !combustionEquipo);
+    refs.pilotoSection.classList.toggle("oculto", esCombustion);
+    refs.combustionSection.classList.toggle("oculto", !esCombustion);
+    refs.btnTermotanque.classList.toggle("activo", combustionEquipo === "Termotanque");
+    refs.btnCalefones.classList.toggle("activo", combustionEquipo === "Calefones");
+
+    if (esCombustion) {
+        renderTablaCombustion();
+    }
+}
+
+function setVistaActiva(vista) {
+    vistaActiva = vista;
+    if (vista !== "combustion") {
+        combustionEquipo = "";
+    }
+    limpiarResultado();
+    actualizarUIVista();
+    setMenuAbierto(false);
+}
+
+function setCombustionEquipo(equipo) {
+    vistaActiva = "combustion";
+    combustionEquipo = equipo;
+    limpiarResultado();
+    actualizarUIVista();
 }
 
 function seleccionarMedidorPorKey(key) {
     return medidores.find((medidor) => medidor.key === key) || null;
 }
 
-function interpolarValor(tabla, objetivo) {
-    if (!Array.isArray(tabla) || !tabla.length || !Number.isFinite(objetivo)) return NaN;
-    const ordenada = [...tabla].sort((a, b) => a.para - b.para);
-    if (objetivo <= ordenada[0].para) return ordenada[0].error;
-    if (objetivo >= ordenada[ordenada.length - 1].para) return ordenada[ordenada.length - 1].error;
-
-    for (let i = 0; i < ordenada.length - 1; i++) {
-        const actual = ordenada[i];
-        const siguiente = ordenada[i + 1];
-        if (objetivo >= actual.para && objetivo <= siguiente.para) {
-            const tramo = siguiente.para - actual.para;
-            if (tramo === 0) return actual.error;
-            const proporcion = (objetivo - actual.para) / tramo;
-            return actual.error + (siguiente.error - actual.error) * proporcion;
-        }
+function validarClaveMedidores() {
+    const clave = window.prompt("Ingresá la contraseña para administrar medidores:");
+    if (clave === null) return false;
+    if (clave !== CLAVE_MEDIDORES) {
+        window.alert("Contraseña incorrecta.");
+        return false;
     }
-
-    return NaN;
+    return true;
 }
 
-function obtenerErrorMedidor(medidor, coMedido) {
-    const error = interpolarValor(medidor.tabla, coMedido);
-    return { error };
+function obtenerFilaMasCercana(tabla, objetivo) {
+    if (!Array.isArray(tabla) || !tabla.length || !Number.isFinite(objetivo)) return null;
+
+    return tabla.reduce((mejor, fila) => {
+        if (!Number.isFinite(fila?.para) || !Number.isFinite(fila?.error)) return mejor;
+        if (!mejor) return fila;
+
+        const distanciaActual = Math.abs(fila.para - objetivo);
+        const distanciaMejor = Math.abs(mejor.para - objetivo);
+
+        if (distanciaActual < distanciaMejor) return fila;
+        if (distanciaActual === distanciaMejor && fila.para < mejor.para) return fila;
+        return mejor;
+    }, null);
+}
+
+function filtrarTablaPorGas(tabla, gasBuscado) {
+    if (!Array.isArray(tabla) || !tabla.length) return [];
+
+    const gasNormalizado = String(gasBuscado || "").trim().toUpperCase();
+    const filasConGas = tabla.filter((fila) => fila?.gas);
+    if (!filasConGas.length) return tabla;
+
+    const filtrada = filasConGas.filter((fila) => String(fila.gas).trim().toUpperCase() === gasNormalizado);
+    return filtrada.length ? filtrada : [];
+}
+
+function obtenerCorreccionMedidor(medidor, valorMedido, gas) {
+    const tablaGas = filtrarTablaPorGas(medidor?.tabla, gas);
+    const fila = obtenerFilaMasCercana(tablaGas, valorMedido);
+    if (!fila || !Number.isFinite(valorMedido) || fila.para === 0) {
+        return { correccion: NaN, factor: NaN, fila: null };
+    }
+
+    const factor = fila.error / fila.para;
+    const correccion = valorMedido * factor;
+    return { correccion, factor, fila };
 }
 
 function validarCamposBase() {
+    if (vistaActiva === "combustion" && !combustionEquipo) {
+        return "Seleccioná Termotanque o Calefones para continuar.";
+    }
+
     const medidor = seleccionarMedidorPorKey(refs.instrumento.value);
     if (!medidor) return "Seleccioná un medidor.";
 
-    const co = normalizarNumero(refs.co.value);
-    if (!Number.isFinite(co)) return "Ingresá un valor válido de CO.";
+    if (vistaActiva === "combustion") {
+        const filas = combustionRowsByEquipo[combustionEquipo] || [];
+        const hayAlguno = filas.some((fila) => ["O2", "CO2", "CO"].some((gas) => Number.isFinite(normalizarNumero(obtenerValorCombustion(fila, gas)))));
+        if (!hayAlguno) return "Ingresá al menos un valor válido en la tabla de combustión.";
+        return null;
+    }
+
+    const hayAlguno = [refs.o2.value, refs.co2.value, refs.co.value].some((valor) => Number.isFinite(normalizarNumero(valor)));
+    if (!hayAlguno) return "Ingresá al menos un valor válido de O2, CO2 o CO.";
 
     return null;
 }
@@ -440,9 +854,14 @@ function parsearTextoTabla(texto) {
     const tabla = [];
     for (const fila of filas) {
         const columnas = fila.split(/[;\t]/).map((columna) => columna.trim());
+        const textoGas = columnas.find((columna) => /^(CO|CO2|O2)$/i.test(columna));
         const numeros = columnas.map(normalizarNumero).filter(Number.isFinite);
         if (numeros.length >= 2) {
-            tabla.push({ para: numeros[0], error: numeros[1] });
+            tabla.push({
+                gas: textoGas ? textoGas.toUpperCase() : "",
+                para: numeros[0],
+                error: numeros[1]
+            });
         }
     }
 
@@ -460,9 +879,14 @@ async function parsearExcelTabla(arrayBuffer) {
             if (celda && typeof celda === "object" && "result" in celda) return celda.result;
             return celda;
         });
+        const textoGas = valores.find((valor) => /^(CO|CO2|O2)$/i.test(String(valor).trim()));
         const numeros = valores.map(normalizarNumero).filter(Number.isFinite);
         if (numeros.length >= 2) {
-            tabla.push({ para: numeros[0], error: numeros[1] });
+            tabla.push({
+                gas: textoGas ? String(textoGas).trim().toUpperCase() : "",
+                para: numeros[0],
+                error: numeros[1]
+            });
         }
     });
 
@@ -476,6 +900,11 @@ function validarTabla(tabla) {
 
     const saneada = tabla
         .filter((fila) => Number.isFinite(fila.para) && Number.isFinite(fila.error))
+        .map((fila) => ({
+            gas: fila.gas ? String(fila.gas).trim().toUpperCase() : "",
+            para: fila.para,
+            error: fila.error
+        }))
         .sort((a, b) => a.para - b.para);
 
     if (!saneada.length) {
@@ -549,6 +978,7 @@ function actualizarLista() {
 }
 
 function abrirEdicion(key) {
+    if (!validarClaveMedidores()) return;
     const medidor = seleccionarMedidorPorKey(key);
     if (!medidor) return;
     editandoKey = key;
@@ -565,6 +995,10 @@ function cerrarEdicion() {
 
 async function agregarMedidor() {
     refs.msgMedidor.textContent = "";
+    if (!validarClaveMedidores()) {
+        refs.msgMedidor.textContent = "Acción cancelada o contraseña incorrecta.";
+        return;
+    }
     const numero = refs.nuevoNroMedidor.value.trim();
     const file = refs.archivoFactor.files[0];
 
@@ -619,6 +1053,7 @@ async function guardarEdicion() {
 }
 
 async function eliminarMedidor(key) {
+    if (!validarClaveMedidores()) return;
     const medidor = seleccionarMedidorPorKey(key);
     if (!medidor) return;
     if (!window.confirm("¿Eliminar el medidor " + medidor.numero + "?")) return;
@@ -639,25 +1074,63 @@ function ejecutarCorreccion() {
     }
 
     const medidor = seleccionarMedidorPorKey(refs.instrumento.value);
-    const co = normalizarNumero(refs.co.value);
-    const errorInfo = obtenerErrorMedidor(medidor, co);
+    if (vistaActiva === "combustion") {
+        const resultados = obtenerResultadosCombustion(medidor);
+        resultados.forEach((item) => {
+            setResultadoFilaCombustion(item.fila, item.CO?.correccion, item.CO?.corregido);
+        });
 
-    if (!Number.isFinite(errorInfo.error)) {
-        limpiarResultado();
-        refs.estadoResultado.textContent = "No se pudo interpolar el error con la tabla cargada.";
-        return;
+        const validos = resultados.filter((item) =>
+            ["O2", "CO2", "CO"].some((gas) => Number.isFinite(item[gas]?.corregido))
+        );
+        if (!validos.length) {
+            limpiarResultado();
+            refs.estadoResultado.textContent = "No se pudo calcular la corrección para las filas cargadas.";
+            return;
+        }
+
+        ultimoResultado = {
+            modo: "combustion",
+            filas: resultados
+        };
+        refs.estadoResultado.textContent =
+            "Se corrigieron " + validos.length + " fila(s) de " + combustionEquipo + ". Abajo tenés la tabla con O2, CO2 y CO corregidos.";
+        renderTablaResultadosCorregidos(validos);
+    } else {
+        const resultadoPiloto = {
+            O2: (() => {
+                const valor = normalizarNumero(refs.o2.value);
+                const info = obtenerCorreccionMedidor(medidor, valor, "O2");
+                return { medido: valor, correccion: info.correccion, corregido: Number.isFinite(info.correccion) ? valor + info.correccion : NaN, referencia: info.fila };
+            })(),
+            CO2: (() => {
+                const valor = normalizarNumero(refs.co2.value);
+                const info = obtenerCorreccionMedidor(medidor, valor, "CO2");
+                return { medido: valor, correccion: info.correccion, corregido: Number.isFinite(info.correccion) ? valor + info.correccion : NaN, referencia: info.fila };
+            })(),
+            CO: (() => {
+                const valor = normalizarNumero(refs.co.value);
+                const info = obtenerCorreccionMedidor(medidor, valor, "CO");
+                return { medido: valor, correccion: info.correccion, corregido: Number.isFinite(info.correccion) ? valor + info.correccion : NaN, referencia: info.fila };
+            })()
+        };
+        const coResultado = resultadoPiloto.CO;
+
+        if (!Number.isFinite(coResultado.correccion) && !Number.isFinite(resultadoPiloto.O2.correccion) && !Number.isFinite(resultadoPiloto.CO2.correccion)) {
+            limpiarResultado();
+            refs.estadoResultado.textContent = "No se pudo calcular la corrección con la tabla cargada.";
+            return;
+        }
+
+        ultimoResultado = {
+            modo: "piloto",
+            gases: resultadoPiloto
+        };
+
+        refs.estadoResultado.textContent =
+            "Se calcularon los gases corregidos de O2, CO2 y CO según las filas más cercanas de cada tabla.";
+        renderResultadoPilotoCorregido(resultadoPiloto);
     }
-
-    const coCorregido = co - errorInfo.error;
-    ultimoResultado = {
-        error: errorInfo.error,
-        coCorregido,
-        coIngresado: co
-    };
-
-    refs.errorResultado.textContent = formatoNumero(errorInfo.error, 2) + " ppm";
-    refs.coCorregidoResultado.textContent = formatoNumero(coCorregido, 2) + " ppm";
-    refs.estadoResultado.textContent = "Corrección aplicada sobre CO medido de " + formatoNumero(co, 2) + " ppm.";
     refs.btnDescargar.disabled = false;
 }
 
@@ -665,16 +1138,33 @@ function valorTexto(id) {
     return document.getElementById(id).value.trim();
 }
 
+function obtenerValorExportacionPiloto(gas, inputId) {
+    const corregido = ultimoResultado?.gases?.[gas]?.corregido;
+    if (Number.isFinite(corregido)) {
+        return formatoNumero(corregido, 2);
+    }
+    return valorTexto(inputId);
+}
+
 async function descargarExcel() {
     if (!ultimoResultado) return;
 
-    const respuesta = await fetch("plantillas/piloto.XLSX");
-    if (!respuesta.ok) {
-        throw new Error("No se pudo cargar la plantilla Excel.");
+    let arrayBuffer;
+    if (vistaActiva === "combustion") {
+        if (!plantillaCombustionFile) {
+            throw new Error("Subí la plantilla Excel de combustión para descargar el archivo.");
+        }
+        arrayBuffer = await plantillaCombustionFile.arrayBuffer();
+    } else {
+        const respuesta = await fetch("piloto.XLSX");
+        if (!respuesta.ok) {
+            throw new Error("No se pudo cargar la plantilla Excel.");
+        }
+        arrayBuffer = await respuesta.arrayBuffer();
     }
 
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(await respuesta.arrayBuffer());
+    await workbook.xlsx.load(arrayBuffer);
     const hoja = workbook.worksheets[0];
 
     hoja.getCell("C9").value = formatearFechaExcel(valorTexto("fecha"));
@@ -682,20 +1172,30 @@ async function descargarExcel() {
     hoja.getCell("I9").value = valorTexto("ensayo");
     hoja.getCell("F11").value = refs.instrumento.options[refs.instrumento.selectedIndex]?.text || "";
     hoja.getCell("G15").value = valorTexto("temp");
-    hoja.getCell("G16").value = valorTexto("o2");
-    hoja.getCell("G17").value = valorTexto("co2");
-    hoja.getCell("G18").value = valorTexto("co");
+    hoja.getCell("G16").value = vistaActiva === "combustion" ? "" : obtenerValorExportacionPiloto("O2", "o2");
+    hoja.getCell("G17").value = vistaActiva === "combustion" ? "" : obtenerValorExportacionPiloto("CO2", "co2");
+    hoja.getCell("G18").value = vistaActiva === "combustion" ? "" : obtenerValorExportacionPiloto("CO", "co");
     hoja.getCell("G19").value = formatoNumero(obtenerTiempoCorteMinutos(), 2);
-    hoja.getCell("B22").value =
-        "CO medido: " + formatoNumero(ultimoResultado.coIngresado, 2) + " ppm | " +
-        "Error: " + formatoNumero(ultimoResultado.error, 2) + " ppm | " +
-        "CO corregido: " + formatoNumero(ultimoResultado.coCorregido, 2) + " ppm";
+    if (vistaActiva === "combustion" && ultimoResultado?.filas) {
+        hoja.getCell("B22").value = ultimoResultado.filas
+            .filter((item) => ["O2", "CO2", "CO"].some((gas) => Number.isFinite(item[gas]?.corregido)))
+            .map((item) => item.fila + ": O2 " + (Number.isFinite(item.O2?.corregido) ? formatoNumero(item.O2.corregido, 2) : "-") + " | CO2 " + (Number.isFinite(item.CO2?.corregido) ? formatoNumero(item.CO2.corregido, 2) : "-") + " | CO " + (Number.isFinite(item.CO?.corregido) ? formatoNumero(item.CO.corregido, 2) : "-"))
+            .join(" || ");
+    } else {
+        hoja.getCell("B22").value =
+            "O2 corregido: " + (Number.isFinite(ultimoResultado?.gases?.O2?.corregido) ? formatoNumero(ultimoResultado.gases.O2.corregido, 2) : "-") +
+            " | CO2 corregido: " + (Number.isFinite(ultimoResultado?.gases?.CO2?.corregido) ? formatoNumero(ultimoResultado.gases.CO2.corregido, 2) : "-") +
+            " | CO corregido: " + (Number.isFinite(ultimoResultado?.gases?.CO?.corregido) ? formatoNumero(ultimoResultado.gases.CO.corregido, 2) : "-");
+    }
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     });
-    saveAs(blob, "Medidor_Monoxido_" + (valorTexto("ensayo") || "sin_ensayo") + ".xlsx");
+    const nombreVista = vistaActiva === "combustion"
+        ? "Combustion_" + (combustionEquipo || "equipo")
+        : "Piloto";
+    saveAs(blob, "Medidor_Monoxido_" + nombreVista + "_" + (valorTexto("ensayo") || "sin_ensayo") + ".xlsx");
 }
 
 function escucharMedidores() {
@@ -713,8 +1213,23 @@ function escucharMedidores() {
     });
 }
 
-refs.menuBtn.addEventListener("click", () => refs.menuPanel.classList.add("abierto"));
-refs.cerrarMenu.addEventListener("click", () => refs.menuPanel.classList.remove("abierto"));
+function setMenuAbierto(abierto) {
+    refs.menuPanel.classList.toggle("abierto", abierto);
+    document.body.classList.toggle("menuAbierto", abierto);
+}
+
+refs.menuBtn.addEventListener("click", () => setMenuAbierto(true));
+refs.cerrarMenu.addEventListener("click", () => setMenuAbierto(false));
+refs.btnVistaPiloto.addEventListener("click", () => setVistaActiva("piloto"));
+refs.btnVistaCombustion.addEventListener("click", () => setVistaActiva("combustion"));
+refs.btnMedidorGas.addEventListener("click", () => {
+    window.open("https://nicolasmattalia-source.github.io/consumo-medidor-ecotermo/", "_blank", "noopener,noreferrer");
+});
+refs.btnCaudalimetro.addEventListener("click", () => {
+    window.open("http://192.168.2.4/", "_blank", "noopener,noreferrer");
+});
+refs.btnTermotanque.addEventListener("click", () => setCombustionEquipo("Termotanque"));
+refs.btnCalefones.addEventListener("click", () => setCombustionEquipo("Calefones"));
 refs.btnAgregarMedidor.addEventListener("click", agregarMedidor);
 refs.btnGuardarEditado.addEventListener("click", guardarEdicion);
 refs.btnCancelarEditado.addEventListener("click", cerrarEdicion);
@@ -732,6 +1247,13 @@ refs.btnDescargar.addEventListener("click", async () => {
     input.addEventListener("change", limpiarResultado);
 });
 
+refs.archivoPlantilla.addEventListener("change", () => {
+    plantillaCombustionFile = refs.archivoPlantilla.files[0] || null;
+    refs.plantillaEstado.textContent = plantillaCombustionFile
+        ? "Plantilla cargada: " + plantillaCombustionFile.name
+        : "Todavía no hay plantilla cargada. La UI queda lista para subirla cuando la tengas.";
+});
+
 window.addEventListener("click", (event) => {
     if (event.target === refs.modalEditar) {
         cerrarEdicion();
@@ -739,9 +1261,8 @@ window.addEventListener("click", (event) => {
 });
 
 escucharMedidores();
+actualizarUIVista();
 </script>
 </body>
 </html>
-
-
 
