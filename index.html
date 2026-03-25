@@ -1,0 +1,747 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medidores de monóxido</title>
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js"></script>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#0f172a;
+    color:#fff;
+    text-align:center;
+    padding:40px 16px;
+    margin:0;
+}
+.container{
+    background:#1e293b;
+    padding:30px;
+    border-radius:15px;
+    max-width:820px;
+    margin:auto;
+    box-shadow:0 20px 45px rgba(0,0,0,.25);
+}
+input, select{
+    padding:8px;
+    margin:5px;
+    text-align:center;
+    border-radius:8px;
+    border:1px solid #cbd5e1;
+    box-sizing:border-box;
+}
+button{
+    padding:10px 15px;
+    margin:10px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+}
+select{
+    text-align:center;
+    text-align-last:center;
+}
+table{
+    border-collapse:collapse;
+}
+td{
+    padding:8px;
+    border:1px solid #cbd5e1;
+}
+#btnCorreccion{background:#f59e0b;}
+#btnDescargar{background:#9333ea;}
+#btnDescargar:disabled{background:#555;cursor:not-allowed;}
+#btnAgregarMedidor,#btnGuardarEditado{background:#2563eb;}
+#btnCancelarEditado{background:#555;}
+.menuBtn{
+    position:fixed;
+    top:14px;
+    left:14px;
+    background:#1e293b;
+    border:1px solid rgba(255,255,255,.15);
+    color:white;
+    font-size:26px;
+    cursor:pointer;
+    z-index:2500;
+    width:48px;
+    height:48px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0;
+}
+.menuPanel{
+    position:fixed;
+    top:0;
+    left:-320px;
+    width:300px;
+    max-width:100vw;
+    height:100%;
+    background:#1e293b;
+    padding:20px;
+    transition:left .3s ease;
+    z-index:2400;
+    overflow-y:auto;
+    box-shadow:10px 0 35px rgba(0,0,0,.25);
+    box-sizing:border-box;
+}
+.menuPanel.abierto{
+    left:0;
+}
+.resultadoBox{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+}
+.resultadoCard{
+    background:#334155;
+    border-radius:12px;
+    padding:14px;
+}
+.resultadoLabel{
+    font-size:13px;
+    color:#cbd5e1;
+    margin-bottom:6px;
+}
+.resultadoValor{
+    font-size:22px;
+    font-weight:bold;
+}
+.resultadoAyuda{
+    margin-top:14px;
+    color:#cbd5e1;
+    font-size:14px;
+    min-height:20px;
+}
+.accionesLista{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    margin-top:6px;
+}
+.accionesLista button{
+    margin:0;
+    padding:6px 10px;
+    font-size:12px;
+    width:auto;
+}
+.btnEditar{
+    background:#2563eb;
+}
+.btnEliminar{
+    background:#dc2626;
+}
+.muted{
+    color:#94a3b8;
+    font-size:13px;
+}
+@media (max-width: 640px){
+    body{
+        padding:20px 10px;
+    }
+    .container{
+        padding:18px;
+        margin-top:56px;
+    }
+    td{
+        padding:6px 4px;
+        font-size:14px;
+    }
+    input{
+        width:100%;
+        margin:4px 0;
+    }
+    button{
+        width:100%;
+        margin:8px 0;
+    }
+    .menuPanel{
+        width:100vw;
+        left:-100vw;
+        padding-top:22px;
+    }
+    .menuPanel.abierto{
+        left:0;
+    }
+    .menuBtn{
+        top:10px;
+        left:10px;
+    }
+}
+</style>
+</head>
+<body>
+
+<img src="ecotermo.png" alt="Logo Ecotermo" style="max-width:180px;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto;">
+
+<button id="menuBtn" class="menuBtn" aria-label="Abrir menú">☰</button>
+
+<div id="menuPanel" class="menuPanel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+        <h3 style="margin:0;line-height:1.2;">Configuración</h3>
+        <button id="cerrarMenu" style="background:none;color:white;font-size:20px;width:auto;min-width:36px;margin:0;padding:6px 8px;" aria-label="Cerrar menú">✖</button>
+    </div>
+
+    <p style="margin-top:8px;">Acá vamos a cargar los medidores</p>
+
+    <div style="background:#334155;padding:14px;border-radius:10px;margin-bottom:14px;margin-top:14px;max-width:100%;">
+        <h4 style="margin-top:0;">Agregar nuevo medidor</h4>
+        <input id="nuevoNroMedidor" placeholder="N° de medidor" style="width:90%;max-width:220px;">
+        <input id="archivoFactor" type="file" accept=".csv,.txt,.xlsx" style="width:90%;max-width:220px;display:block;margin:8px auto;">
+        <button id="btnAgregarMedidor" style="width:90%;max-width:220px;">Agregar medidor</button>
+        <div id="msgMedidor" style="color:#f59e0b;margin-top:8px;"></div>
+        <div class="muted" style="margin-top:8px;">La tabla puede venir como GASES | PARA | ERROR. Se toman las dos columnas numéricas.</div>
+    </div>
+
+    <div style="background:#222b3a;padding:10px;border-radius:8px;margin-bottom:10px;">
+        <b>Medidores guardados:</b>
+        <ul id="listaGuardados" style="text-align:left;font-size:15px;margin:8px 0 0 0;padding-left:18px;max-height:260px;overflow-y:auto;"></ul>
+    </div>
+</div>
+
+<div id="modalEditar" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:3000;align-items:center;justify-content:center;">
+    <div style="background:#334155;padding:22px 18px;border-radius:12px;min-width:260px;max-width:90vw;margin:auto;text-align:center;">
+        <h4>Editar medidor <span id="editNro"></span></h4>
+        <input id="editArchivo" type="file" accept=".csv,.txt,.xlsx" style="margin-bottom:10px;">
+        <div id="editMsg" style="color:#f59e0b;margin-bottom:10px;"></div>
+        <button id="btnGuardarEditado">Guardar</button>
+        <button id="btnCancelarEditado" style="margin-left:10px;">Cancelar</button>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Medidores de monóxido</h2>
+
+    <table style="width:100%;margin-top:20px;background:white;color:black;border-radius:10px;overflow:hidden">
+        <tr>
+            <td>Fecha</td>
+            <td><input id="fecha" type="date"></td>
+            <td>Modelo</td>
+            <td><input id="modelo"></td>
+            <td>Ensayo</td>
+            <td><input id="ensayo"></td>
+        </tr>
+        <tr>
+            <td colspan="6" style="background:#e5e7eb;text-align:center"><b>INSTRUMENTO</b></td>
+        </tr>
+        <tr>
+            <td colspan="6">
+                <select id="instrumento" style="width:100%;padding:8px;">
+                    <option value="">Seleccionar N° de medidor</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6" style="background:#e5e7eb;text-align:center"><b>Ensayo con ambiente enrarecido</b></td>
+        </tr>
+        <tr>
+            <td colspan="3">Temp Ambiente</td>
+            <td colspan="2"><input id="temp"></td>
+            <td>°C</td>
+        </tr>
+        <tr>
+            <td colspan="3">O2</td>
+            <td colspan="2"><input id="o2"></td>
+            <td>%</td>
+        </tr>
+        <tr>
+            <td colspan="3">CO2</td>
+            <td colspan="2"><input id="co2"></td>
+            <td>%</td>
+        </tr>
+        <tr>
+            <td colspan="3">CO</td>
+            <td colspan="2"><input id="co"></td>
+            <td>ppm</td>
+        </tr>
+        <tr>
+            <td colspan="3">Tiempo</td>
+            <td colspan="2">
+                <div style="display:flex;gap:8px;justify-content:center;">
+                    <input id="min" placeholder="min" style="width:45%">
+                    <input id="seg" placeholder="seg" style="width:45%">
+                </div>
+            </td>
+            <td>min / seg</td>
+        </tr>
+    </table>
+
+    <div class="resultadoBox">
+        <div class="resultadoCard">
+            <div class="resultadoLabel">Error interpolado</div>
+            <div class="resultadoValor" id="errorResultado">-</div>
+        </div>
+        <div class="resultadoCard">
+            <div class="resultadoLabel">CO corregido</div>
+            <div class="resultadoValor" id="coCorregidoResultado">-</div>
+        </div>
+    </div>
+
+    <div id="estadoResultado" class="resultadoAyuda"></div>
+
+    <button id="btnCorreccion">Corrección</button>
+    <button id="btnDescargar" disabled>Descargar Excel</button>
+</div>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyDzCDRPO6-td0969GGczUl1EOhxodxgu9Q",
+    authDomain: "medidor-de-monoxido.firebaseapp.com",
+    databaseURL: "https://medidor-de-monoxido-default-rtdb.firebaseio.com/",
+    projectId: "medidor-de-monoxido",
+    storageBucket: "medidor-de-monoxido.firebasestorage.app",
+    messagingSenderId: "191781930813",
+    appId: "1:191781930813:web:eb1c45ebd3f59588d0e754"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let medidores = [];
+let editandoKey = null;
+let ultimoResultado = null;
+
+const refs = {
+    menuBtn: document.getElementById("menuBtn"),
+    menuPanel: document.getElementById("menuPanel"),
+    cerrarMenu: document.getElementById("cerrarMenu"),
+    nuevoNroMedidor: document.getElementById("nuevoNroMedidor"),
+    archivoFactor: document.getElementById("archivoFactor"),
+    btnAgregarMedidor: document.getElementById("btnAgregarMedidor"),
+    msgMedidor: document.getElementById("msgMedidor"),
+    listaGuardados: document.getElementById("listaGuardados"),
+    modalEditar: document.getElementById("modalEditar"),
+    editNro: document.getElementById("editNro"),
+    editArchivo: document.getElementById("editArchivo"),
+    editMsg: document.getElementById("editMsg"),
+    btnGuardarEditado: document.getElementById("btnGuardarEditado"),
+    btnCancelarEditado: document.getElementById("btnCancelarEditado"),
+    instrumento: document.getElementById("instrumento"),
+    fecha: document.getElementById("fecha"),
+    modelo: document.getElementById("modelo"),
+    ensayo: document.getElementById("ensayo"),
+    temp: document.getElementById("temp"),
+    o2: document.getElementById("o2"),
+    co2: document.getElementById("co2"),
+    co: document.getElementById("co"),
+    min: document.getElementById("min"),
+    seg: document.getElementById("seg"),
+    btnCorreccion: document.getElementById("btnCorreccion"),
+    btnDescargar: document.getElementById("btnDescargar"),
+    errorResultado: document.getElementById("errorResultado"),
+    coCorregidoResultado: document.getElementById("coCorregidoResultado"),
+    estadoResultado: document.getElementById("estadoResultado")
+};
+
+refs.fecha.value = new Date().toISOString().slice(0, 10);
+
+function normalizarNumero(valor) {
+    if (valor === null || valor === undefined) return NaN;
+    if (typeof valor === "number") return Number.isFinite(valor) ? valor : NaN;
+    const limpio = String(valor).trim().replace(/\s+/g, "").replace(",", ".");
+    if (!limpio) return NaN;
+    const numero = Number(limpio);
+    return Number.isFinite(numero) ? numero : NaN;
+}
+
+function formatoNumero(valor, decimales) {
+    return Number(valor).toLocaleString("es-AR", {
+        minimumFractionDigits: decimales,
+        maximumFractionDigits: decimales
+    });
+}
+
+function formatearFechaExcel(valor) {
+    if (!valor) return "";
+    const partes = String(valor).split("-");
+    if (partes.length === 3) {
+        return partes[2] + "/" + partes[1] + "/" + partes[0];
+    }
+    return valor;
+}
+
+function obtenerTiempoCorteMinutos() {
+    const minutos = normalizarNumero(refs.min.value || 0);
+    const segundos = normalizarNumero(refs.seg.value || 0);
+    const minutosValidos = Number.isFinite(minutos) ? minutos : 0;
+    const segundosValidos = Number.isFinite(segundos) ? segundos : 0;
+    return minutosValidos + (segundosValidos / 60);
+}
+function limpiarResultado() {
+    ultimoResultado = null;
+    refs.errorResultado.textContent = "-";
+    refs.coCorregidoResultado.textContent = "-";
+    refs.estadoResultado.textContent = "";
+    refs.btnDescargar.disabled = true;
+}
+
+function seleccionarMedidorPorKey(key) {
+    return medidores.find((medidor) => medidor.key === key) || null;
+}
+
+function interpolarValor(tabla, objetivo) {
+    if (!Array.isArray(tabla) || !tabla.length || !Number.isFinite(objetivo)) return NaN;
+    const ordenada = [...tabla].sort((a, b) => a.para - b.para);
+    if (objetivo <= ordenada[0].para) return ordenada[0].error;
+    if (objetivo >= ordenada[ordenada.length - 1].para) return ordenada[ordenada.length - 1].error;
+
+    for (let i = 0; i < ordenada.length - 1; i++) {
+        const actual = ordenada[i];
+        const siguiente = ordenada[i + 1];
+        if (objetivo >= actual.para && objetivo <= siguiente.para) {
+            const tramo = siguiente.para - actual.para;
+            if (tramo === 0) return actual.error;
+            const proporcion = (objetivo - actual.para) / tramo;
+            return actual.error + (siguiente.error - actual.error) * proporcion;
+        }
+    }
+
+    return NaN;
+}
+
+function obtenerErrorMedidor(medidor, coMedido) {
+    const error = interpolarValor(medidor.tabla, coMedido);
+    return { error };
+}
+
+function validarCamposBase() {
+    const medidor = seleccionarMedidorPorKey(refs.instrumento.value);
+    if (!medidor) return "Seleccioná un medidor.";
+
+    const co = normalizarNumero(refs.co.value);
+    if (!Number.isFinite(co)) return "Ingresá un valor válido de CO.";
+
+    return null;
+}
+
+async function leerArchivoTabla(file) {
+    const ext = file.name.split(".").pop().toLowerCase();
+    if (ext === "csv" || ext === "txt") {
+        const texto = await file.text();
+        return parsearTextoTabla(texto);
+    }
+    if (ext === "xlsx") {
+        return parsearExcelTabla(await file.arrayBuffer());
+    }
+    throw new Error("Formato no soportado. Usá CSV, TXT o XLSX.");
+}
+
+function parsearTextoTabla(texto) {
+    const filas = texto
+        .split(/\r?\n/)
+        .map((linea) => linea.trim())
+        .filter(Boolean);
+
+    const tabla = [];
+    for (const fila of filas) {
+        const columnas = fila.split(/[;\t]/).map((columna) => columna.trim());
+        const numeros = columnas.map(normalizarNumero).filter(Number.isFinite);
+        if (numeros.length >= 2) {
+            tabla.push({ para: numeros[0], error: numeros[1] });
+        }
+    }
+
+    return validarTabla(tabla);
+}
+
+async function parsearExcelTabla(arrayBuffer) {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(arrayBuffer);
+    const hoja = workbook.worksheets[0];
+    const tabla = [];
+
+    hoja.eachRow((row) => {
+        const valores = row.values.slice(1).map((celda) => {
+            if (celda && typeof celda === "object" && "result" in celda) return celda.result;
+            return celda;
+        });
+        const numeros = valores.map(normalizarNumero).filter(Number.isFinite);
+        if (numeros.length >= 2) {
+            tabla.push({ para: numeros[0], error: numeros[1] });
+        }
+    });
+
+    return validarTabla(tabla);
+}
+
+function validarTabla(tabla) {
+    if (!tabla.length) {
+        throw new Error("No se encontraron filas numéricas válidas en el archivo.");
+    }
+
+    const saneada = tabla
+        .filter((fila) => Number.isFinite(fila.para) && Number.isFinite(fila.error))
+        .sort((a, b) => a.para - b.para);
+
+    if (!saneada.length) {
+        throw new Error("La tabla no contiene datos válidos.");
+    }
+
+    return { tabla: saneada };
+}
+
+function actualizarSelector() {
+    const valorActual = refs.instrumento.value;
+    refs.instrumento.innerHTML = '<option value="">Seleccionar N° de medidor</option>';
+
+    medidores
+        .slice()
+        .sort((a, b) => String(a.numero).localeCompare(String(b.numero), "es", { numeric: true }))
+        .forEach((medidor) => {
+            const option = document.createElement("option");
+            option.value = medidor.key;
+            option.textContent = medidor.numero;
+            refs.instrumento.appendChild(option);
+        });
+
+    if (medidores.some((medidor) => medidor.key === valorActual)) {
+        refs.instrumento.value = valorActual;
+    }
+}
+
+function actualizarLista() {
+    refs.listaGuardados.innerHTML = "";
+
+    if (!medidores.length) {
+        const li = document.createElement("li");
+        li.textContent = "No hay medidores cargados.";
+        refs.listaGuardados.appendChild(li);
+        return;
+    }
+
+    medidores
+        .slice()
+        .sort((a, b) => String(a.numero).localeCompare(String(b.numero), "es", { numeric: true }))
+        .forEach((medidor) => {
+            const li = document.createElement("li");
+            const titulo = document.createElement("div");
+            titulo.textContent = medidor.numero;
+            li.appendChild(titulo);
+
+            const detalle = document.createElement("div");
+            detalle.className = "muted";
+            detalle.textContent = (medidor.tabla?.length || 0) + " filas de corrección";
+            li.appendChild(detalle);
+
+            const acciones = document.createElement("div");
+            acciones.className = "accionesLista";
+
+            const btnEditar = document.createElement("button");
+            btnEditar.className = "btnEditar";
+            btnEditar.textContent = "Editar";
+            btnEditar.onclick = () => abrirEdicion(medidor.key);
+
+            const btnEliminar = document.createElement("button");
+            btnEliminar.className = "btnEliminar";
+            btnEliminar.textContent = "Eliminar";
+            btnEliminar.onclick = () => eliminarMedidor(medidor.key);
+
+            acciones.appendChild(btnEditar);
+            acciones.appendChild(btnEliminar);
+            li.appendChild(acciones);
+            refs.listaGuardados.appendChild(li);
+        });
+}
+
+function abrirEdicion(key) {
+    const medidor = seleccionarMedidorPorKey(key);
+    if (!medidor) return;
+    editandoKey = key;
+    refs.editNro.textContent = medidor.numero;
+    refs.editArchivo.value = "";
+    refs.editMsg.textContent = "";
+    refs.modalEditar.style.display = "flex";
+}
+
+function cerrarEdicion() {
+    editandoKey = null;
+    refs.modalEditar.style.display = "none";
+}
+
+async function agregarMedidor() {
+    refs.msgMedidor.textContent = "";
+    const numero = refs.nuevoNroMedidor.value.trim();
+    const file = refs.archivoFactor.files[0];
+
+    if (!numero) {
+        refs.msgMedidor.textContent = "Ingresá el número de medidor.";
+        return;
+    }
+    if (!file) {
+        refs.msgMedidor.textContent = "Seleccioná un archivo.";
+        return;
+    }
+    if (medidores.some((medidor) => String(medidor.numero).trim() === numero)) {
+        refs.msgMedidor.textContent = "Ese medidor ya existe.";
+        return;
+    }
+
+    try {
+        const { tabla } = await leerArchivoTabla(file);
+        await db.ref("medidores").push({
+            numero,
+            tabla,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        });
+        refs.nuevoNroMedidor.value = "";
+        refs.archivoFactor.value = "";
+        refs.msgMedidor.textContent = "Medidor guardado correctamente.";
+    } catch (error) {
+        refs.msgMedidor.textContent = error.message;
+    }
+}
+
+async function guardarEdicion() {
+    refs.editMsg.textContent = "";
+    const file = refs.editArchivo.files[0];
+    if (!editandoKey) return;
+    if (!file) {
+        refs.editMsg.textContent = "Seleccioná un archivo para reemplazar la tabla.";
+        return;
+    }
+
+    try {
+        const { tabla } = await leerArchivoTabla(file);
+        await db.ref("medidores/" + editandoKey).update({
+            tabla,
+            updatedAt: Date.now()
+        });
+        cerrarEdicion();
+    } catch (error) {
+        refs.editMsg.textContent = error.message;
+    }
+}
+
+async function eliminarMedidor(key) {
+    const medidor = seleccionarMedidorPorKey(key);
+    if (!medidor) return;
+    if (!window.confirm("¿Eliminar el medidor " + medidor.numero + "?")) return;
+
+    await db.ref("medidores/" + key).remove();
+    if (refs.instrumento.value === key) {
+        refs.instrumento.value = "";
+        limpiarResultado();
+    }
+}
+
+function ejecutarCorreccion() {
+    const error = validarCamposBase();
+    if (error) {
+        limpiarResultado();
+        refs.estadoResultado.textContent = error;
+        return;
+    }
+
+    const medidor = seleccionarMedidorPorKey(refs.instrumento.value);
+    const co = normalizarNumero(refs.co.value);
+    const errorInfo = obtenerErrorMedidor(medidor, co);
+
+    if (!Number.isFinite(errorInfo.error)) {
+        limpiarResultado();
+        refs.estadoResultado.textContent = "No se pudo interpolar el error con la tabla cargada.";
+        return;
+    }
+
+    const coCorregido = co - errorInfo.error;
+    ultimoResultado = {
+        error: errorInfo.error,
+        coCorregido,
+        coIngresado: co
+    };
+
+    refs.errorResultado.textContent = formatoNumero(errorInfo.error, 2) + " ppm";
+    refs.coCorregidoResultado.textContent = formatoNumero(coCorregido, 2) + " ppm";
+    refs.estadoResultado.textContent = "Corrección aplicada sobre CO medido de " + formatoNumero(co, 2) + " ppm.";
+    refs.btnDescargar.disabled = false;
+}
+
+function valorTexto(id) {
+    return document.getElementById(id).value.trim();
+}
+
+async function descargarExcel() {
+    if (!ultimoResultado) return;
+
+    const respuesta = await fetch("plantillas/piloto.XLSX");
+    if (!respuesta.ok) {
+        throw new Error("No se pudo cargar la plantilla Excel.");
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(await respuesta.arrayBuffer());
+    const hoja = workbook.worksheets[0];
+
+    hoja.getCell("C9").value = formatearFechaExcel(valorTexto("fecha"));
+    hoja.getCell("E9").value = valorTexto("modelo");
+    hoja.getCell("I9").value = valorTexto("ensayo");
+    hoja.getCell("F11").value = refs.instrumento.options[refs.instrumento.selectedIndex]?.text || "";
+    hoja.getCell("G15").value = valorTexto("temp");
+    hoja.getCell("G16").value = valorTexto("o2");
+    hoja.getCell("G17").value = valorTexto("co2");
+    hoja.getCell("G18").value = valorTexto("co");
+    hoja.getCell("G19").value = formatoNumero(obtenerTiempoCorteMinutos(), 2);
+    hoja.getCell("B22").value =
+        "CO medido: " + formatoNumero(ultimoResultado.coIngresado, 2) + " ppm | " +
+        "Error: " + formatoNumero(ultimoResultado.error, 2) + " ppm | " +
+        "CO corregido: " + formatoNumero(ultimoResultado.coCorregido, 2) + " ppm";
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+    saveAs(blob, "Medidor_Monoxido_" + (valorTexto("ensayo") || "sin_ensayo") + ".xlsx");
+}
+
+function escucharMedidores() {
+    db.ref("medidores").on("value", (snapshot) => {
+        const valor = snapshot.val() || {};
+        medidores = Object.entries(valor).map(([key, item]) => ({
+            key,
+            numero: item.numero || "",
+            tabla: Array.isArray(item.tabla) ? item.tabla : [],
+            createdAt: item.createdAt || 0,
+            updatedAt: item.updatedAt || 0
+        }));
+        actualizarSelector();
+        actualizarLista();
+    });
+}
+
+refs.menuBtn.addEventListener("click", () => refs.menuPanel.classList.add("abierto"));
+refs.cerrarMenu.addEventListener("click", () => refs.menuPanel.classList.remove("abierto"));
+refs.btnAgregarMedidor.addEventListener("click", agregarMedidor);
+refs.btnGuardarEditado.addEventListener("click", guardarEdicion);
+refs.btnCancelarEditado.addEventListener("click", cerrarEdicion);
+refs.btnCorreccion.addEventListener("click", ejecutarCorreccion);
+refs.btnDescargar.addEventListener("click", async () => {
+    try {
+        await descargarExcel();
+    } catch (error) {
+        refs.estadoResultado.textContent = error.message;
+    }
+});
+
+[refs.instrumento, refs.temp, refs.o2, refs.co2, refs.co, refs.modelo, refs.ensayo, refs.fecha, refs.min, refs.seg].forEach((input) => {
+    input.addEventListener("input", limpiarResultado);
+    input.addEventListener("change", limpiarResultado);
+});
+
+window.addEventListener("click", (event) => {
+    if (event.target === refs.modalEditar) {
+        cerrarEdicion();
+    }
+});
+
+escucharMedidores();
+</script>
+</body>
+</html>
+
+
+
