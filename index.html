@@ -32,6 +32,7 @@ input, select{
     border-radius:8px;
     border:1px solid #cbd5e1;
     box-sizing:border-box;
+    max-width:100%;
 }
 button{
     padding:10px 15px;
@@ -40,6 +41,7 @@ button{
     border-radius:8px;
     cursor:pointer;
     color:white;
+    box-sizing:border-box;
 }
 select{
     text-align:center;
@@ -47,10 +49,69 @@ select{
 }
 table{
     border-collapse:collapse;
+    table-layout:fixed;
 }
 td{
     padding:8px;
     border:1px solid #cbd5e1;
+    word-break:break-word;
+}
+.logo{
+    max-width:180px;
+    width:min(42vw, 180px);
+    margin-bottom:20px;
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+}
+.tableCard{
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    border-radius:10px;
+}
+.tableCard table{
+    min-width:100%;
+}
+.datosTable,
+.pilotoTable{
+    width:100%;
+}
+.datosLabel,
+.pilotoLabel{
+    font-weight:600;
+}
+.datosInput input,
+.pilotoInput input{
+    width:100%;
+    margin:0;
+}
+.datosInputFull select{
+    width:100%;
+    margin:0;
+}
+.unidadCell{
+    white-space:nowrap;
+}
+.inlineTiempo{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+}
+.inlineTiempo input{
+    width:45%;
+    min-width:0;
+}
+.actionRow{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:16px;
+}
+.actionRow button{
+    margin:0;
+    min-width:190px;
 }
 #btnCorreccion{background:#f59e0b;}
 #btnDescargar{background:#9333ea;}
@@ -204,7 +265,9 @@ body.menuAbierto .menuBtn{
     background:white;
     color:black;
     border-radius:10px;
-    overflow:hidden;
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
 }
 .combustionTable{
     width:100%;
@@ -243,7 +306,8 @@ body.menuAbierto .menuBtn{
     background:white;
     color:black;
     border-radius:12px;
-    overflow:hidden;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
 }
 .resultadosTabla{
     width:100%;
@@ -308,7 +372,8 @@ body.menuAbierto .menuBtn{
         padding:6px 4px;
         font-size:14px;
     }
-    input{
+    input,
+    select{
         width:100%;
         margin:4px 0;
     }
@@ -328,12 +393,81 @@ body.menuAbierto .menuBtn{
         top:10px;
         left:10px;
     }
+    .menuHeader h3{
+        font-size:26px;
+    }
+    .selectorEquipoBtns button,
+    .actionRow button{
+        min-width:0;
+    }
+    .tableCard{
+        overflow-x:visible;
+    }
+    .tableCard table{
+        min-width:0;
+    }
+    .datosTable,
+    .pilotoTable,
+    .datosTable tbody,
+    .pilotoTable tbody,
+    .datosTable tr,
+    .pilotoTable tr,
+    .datosTable td,
+    .pilotoTable td{
+        display:block;
+        width:100%;
+        box-sizing:border-box;
+    }
+    .datosTable tr:first-child .datosLabel,
+    .pilotoTable tr:not(:first-child) .pilotoLabel{
+        border-bottom:none;
+        font-size:15px;
+        padding:12px 10px 6px;
+    }
+    .datosTable tr:first-child .datosInput,
+    .pilotoTable tr:not(:first-child) .pilotoInput{
+        border-top:none;
+        padding:6px 10px 12px;
+    }
+    .datosTable tr:first-child .datosInput input,
+    .pilotoTable tr:not(:first-child) .pilotoInput input,
+    .datosInputFull select{
+        width:100%;
+        margin:0;
+    }
+    .datosTable tr:first-child td,
+    .pilotoTable tr:not(:first-child) td{
+        min-height:auto;
+    }
+    .pilotoTable tr:not(:first-child) .unidadCell{
+        border-top:none;
+        padding:0 10px 12px;
+        text-align:left;
+        color:#475569;
+        background:#fff;
+    }
+    .inlineTiempo{
+        width:100%;
+    }
+    .inlineTiempo input{
+        width:50%;
+    }
+    .combustionTable{
+        min-width:720px;
+    }
+    .resultadosTabla{
+        min-width:520px;
+    }
+    .subtituloVista{
+        font-size:14px;
+        line-height:1.4;
+    }
 }
 </style>
 </head>
 <body>
-<!-- update -->
-<img src="ecotermo.png" alt="Logo Ecotermo" style="max-width:180px;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto;">
+
+<img src="ecotermo.png" alt="Logo Ecotermo" class="logo">
 
 <button id="menuBtn" class="menuBtn" aria-label="Abrir menú">☰</button>
 
@@ -395,62 +529,66 @@ body.menuAbierto .menuBtn{
     </div>
 
     <div id="panelFormulario">
-        <table class="formSection" style="width:100%;background:white;color:black;border-radius:10px;overflow:hidden">
-            <tr>
-                <td>Fecha</td>
-                <td><input id="fecha" type="date"></td>
-                <td>Modelo</td>
-                <td><input id="modelo"></td>
-                <td>Ensayo</td>
-                <td><input id="ensayo"></td>
-            </tr>
-            <tr>
-                <td colspan="6" style="background:#e5e7eb;text-align:center"><b>INSTRUMENTO</b></td>
-            </tr>
-            <tr>
-                <td colspan="6">
-                    <select id="instrumento" style="width:100%;padding:8px;">
-                        <option value="">Seleccionar N° de medidor</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
+        <div class="tableCard formSection" style="background:white;color:black;">
+            <table class="datosTable" style="width:100%;background:white;color:black;">
+                <tr>
+                    <td class="datosLabel">Fecha</td>
+                    <td class="datosInput"><input id="fecha" type="date"></td>
+                    <td class="datosLabel">Modelo</td>
+                    <td class="datosInput"><input id="modelo"></td>
+                    <td class="datosLabel">Ensayo</td>
+                    <td class="datosInput"><input id="ensayo"></td>
+                </tr>
+                <tr>
+                    <td colspan="6" style="background:#e5e7eb;text-align:center"><b>INSTRUMENTO</b></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="datosInputFull">
+                        <select id="instrumento" style="width:100%;padding:8px;">
+                            <option value="">Seleccionar N° de medidor</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-        <table id="pilotoSection" class="formSection" style="width:100%;background:white;color:black;border-radius:10px;overflow:hidden">
-            <tr>
-                <td colspan="6" style="background:#e5e7eb;text-align:center"><b>Ensayo con ambiente enrarecido</b></td>
-            </tr>
-            <tr>
-                <td colspan="3">Temp Ambiente</td>
-                <td colspan="2"><input id="temp"></td>
-                <td>°C</td>
-            </tr>
-            <tr>
-                <td colspan="3">O2</td>
-                <td colspan="2"><input id="o2"></td>
-                <td>%</td>
-            </tr>
-            <tr>
-                <td colspan="3">CO2</td>
-                <td colspan="2"><input id="co2"></td>
-                <td>%</td>
-            </tr>
-            <tr>
-                <td colspan="3">CO</td>
-                <td colspan="2"><input id="co"></td>
-                <td>ppm</td>
-            </tr>
-            <tr>
-                <td colspan="3">Tiempo</td>
-                <td colspan="2">
-                    <div style="display:flex;gap:8px;justify-content:center;">
-                        <input id="min" placeholder="min" style="width:45%">
-                        <input id="seg" placeholder="seg" style="width:45%">
-                    </div>
-                </td>
-                <td>min / seg</td>
-            </tr>
-        </table>
+        <div id="pilotoSection" class="tableCard formSection" style="background:white;color:black;">
+            <table class="pilotoTable" style="width:100%;background:white;color:black;">
+                <tr>
+                    <td colspan="6" style="background:#e5e7eb;text-align:center"><b>Ensayo con ambiente enrarecido</b></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="pilotoLabel">Temp Ambiente</td>
+                    <td colspan="2" class="pilotoInput"><input id="temp"></td>
+                    <td class="unidadCell">°C</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="pilotoLabel">O2</td>
+                    <td colspan="2" class="pilotoInput"><input id="o2"></td>
+                    <td class="unidadCell">%</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="pilotoLabel">CO2</td>
+                    <td colspan="2" class="pilotoInput"><input id="co2"></td>
+                    <td class="unidadCell">%</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="pilotoLabel">CO</td>
+                    <td colspan="2" class="pilotoInput"><input id="co"></td>
+                    <td class="unidadCell">ppm</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="pilotoLabel">Tiempo</td>
+                    <td colspan="2" class="pilotoInput">
+                        <div class="inlineTiempo">
+                            <input id="min" placeholder="min">
+                            <input id="seg" placeholder="seg">
+                        </div>
+                    </td>
+                    <td class="unidadCell">min / seg</td>
+                </tr>
+            </table>
+        </div>
 
         <div id="combustionSection" class="combustionSection oculto">
             <div style="background:#e5e7eb;color:black;text-align:center;padding:10px 8px;font-weight:700;">Tabla de combustión</div>
@@ -482,14 +620,14 @@ body.menuAbierto .menuBtn{
                         <th>CO corregido</th>
                     </tr>
                 </thead>
-                <tbody id="resultadosCorregidosBody">
-                    
-                </tbody>
+                <tbody id="resultadosCorregidosBody"></tbody>
             </table>
         </div>
 
-        <button id="btnCorreccion">Corrección</button>
-        <button id="btnDescargar" disabled>Descargar Excel</button>
+        <div class="actionRow">
+            <button id="btnCorreccion">Corrección</button>
+            <button id="btnDescargar" disabled>Descargar Excel</button>
+        </div>
     </div>
 </div>
 
